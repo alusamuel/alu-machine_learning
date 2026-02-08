@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+# Module: concatenate nested lists along a specified axis (cat_matrices)
+
+
 def cat_matrices(mat1, mat2, axis=0):
-    """Concatenates two matrices along a specific axis."""
     if axis == 0:
         if not _same_shape(mat1[0:], mat2[0:]):
             return None
@@ -19,7 +21,6 @@ def cat_matrices(mat1, mat2, axis=0):
 
 
 def _same_shape(a, b):
-    """Checks that two nested lists share the same shape."""
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return True
     if not isinstance(a, list) or not isinstance(b, list):
@@ -27,3 +28,4 @@ def _same_shape(a, b):
     if len(a) != len(b):
         return False
     return all(_same_shape(x, y) for x, y in zip(a, b))
+

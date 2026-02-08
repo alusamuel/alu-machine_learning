@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# show list slicing examples (first two, last five, and 2nd-6th elements)
 arr = [9, 8, 2, 3, 9, 4, 1, 0, 3]
 arr1 = arr[:2]
 arr2 = arr[-5:]

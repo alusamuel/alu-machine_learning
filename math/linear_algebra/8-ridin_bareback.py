@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-# Module for matrix multiplication
+"""
+Module for matrix multiplication
+"""
 
 
 def mat_mul(mat1, mat2):
+    """Performs matrix multiplication on two 2D matrices"""
     if len(mat1[0]) != len(mat2):
         return None
 

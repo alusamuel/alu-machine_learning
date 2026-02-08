@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Demo: demonstrate matrix multiplication using NumPy
 import numpy as np
 np_matmul = __import__('14-saddle_up').np_matmul
 

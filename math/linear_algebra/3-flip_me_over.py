@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# transpose 2D Python lists (matrices)
+"""Module for transposing matrices"""
 
 
 def matrix_transpose(matrix):

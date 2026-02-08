@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import numpy as np
 np_shape = __import__('10-ill_use_my_scale').np_shape
 

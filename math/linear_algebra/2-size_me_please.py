@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# Module: calculate the shape (dimensions) of a nested Python list
+"""Module for calculating matrix shape"""
+
 
 def matrix_shape(matrix):
+    """Calculates the shape of a matrix"""
     shape = []
     while isinstance(matrix, list):
         shape.append(len(matrix))

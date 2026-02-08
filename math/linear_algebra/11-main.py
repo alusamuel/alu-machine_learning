@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Demo: show transposing behavior for various numpy arrays
 import numpy as np
 np_transpose = __import__('11-the_western_exchange').np_transpose
 

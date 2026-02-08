@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# add two 2D Python lists element-wise
+"""Module for adding 2D matrices element-wise"""
 
 
 def add_matrices2D(mat1, mat2):

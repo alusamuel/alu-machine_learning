@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# show 1D list addition and edge-case behavior
 add_arrays = __import__('4-line_up').add_arrays
 
 arr1 = [1, 2, 3, 4]

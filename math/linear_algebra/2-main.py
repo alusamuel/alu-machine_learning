@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Demo: show calculated shapes for nested Python lists
 matrix_shape = __import__('2-size_me_please').matrix_shape
 
 mat1 = [[1, 2], [3, 4]]

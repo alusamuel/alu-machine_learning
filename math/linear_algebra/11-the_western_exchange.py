@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-# Module: transpose numpy arrays using NumPy's .T attribute
+"""Module for transposing numpy arrays"""
+
 
 def np_transpose(matrix):
+    """Transposes a numpy.ndarray"""
     return matrix.T

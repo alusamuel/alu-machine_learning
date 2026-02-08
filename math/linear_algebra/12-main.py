@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Demo: element-wise operations on numpy arrays (add, sub, mul, div)
 import numpy as np
 np_elementwise = __import__('12-bracin_the_elements').np_elementwise
 

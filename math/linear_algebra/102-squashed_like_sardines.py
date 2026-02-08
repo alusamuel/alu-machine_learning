@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-# Module: concatenate nested lists along a specified axis (cat_matrices)
+"""Concatenate nested lists (matrices) along a specified axis.
+
+This module provides `cat_matrices(mat1, mat2, axis=0)` which returns a
+new nested list representing the concatenation of `mat1` and `mat2` along
+the requested axis. If the shapes are incompatible for the requested axis,
+the function returns ``None``.
+"""
 
 
 def _same_shape(a, b):

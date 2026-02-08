@@ -2,12 +2,38 @@
 # Module: concatenate nested lists along a specified axis (cat_matrices)
 
 
-def cat_matrices(mat1, mat2, axis=0):
-    if axis == 0:
-        if not _same_shape(mat1[0:], mat2[0:]):
-            return None
-        return [*mat1, *mat2]
+def _same_shape(a, b):
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return True
+    if not isinstance(a, list) or not isinstance(b, list):
+        return False
+    if len(a) != len(b):
+        return False
+    return all(_same_shape(x, y) for x, y in zip(a, b))
 
+
+def _deep_copy(obj):
+    if isinstance(obj, list):
+        return [_deep_copy(x) for x in obj]
+    return obj
+
+
+def cat_matrices(mat1, mat2, axis=0):
+    # Concatenate along the first axis: combine top-level lists
+    if axis == 0:
+        # both inputs must be lists and their inner shapes must match
+        if not isinstance(mat1, list) or not isinstance(mat2, list):
+            return None
+        if len(mat1) == 0 or len(mat2) == 0:
+            # concatenation with empty lists is allowed; return deep copy
+            return _deep_copy(mat1) + _deep_copy(mat2)
+        if not _same_shape(mat1[0], mat2[0]):
+            return None
+        return _deep_copy(mat1) + _deep_copy(mat2)
+
+    # deeper axis: lengths of current dimension must match
+    if not isinstance(mat1, list) or not isinstance(mat2, list):
+        return None
     if len(mat1) != len(mat2):
         return None
 
@@ -19,13 +45,4 @@ def cat_matrices(mat1, mat2, axis=0):
         out.append(c)
     return out
 
-
-def _same_shape(a, b):
-    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
-        return True
-    if not isinstance(a, list) or not isinstance(b, list):
-        return False
-    if len(a) != len(b):
-        return False
-    return all(_same_shape(x, y) for x, y in zip(a, b))
 

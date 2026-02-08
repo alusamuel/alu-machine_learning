@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-# Module: slice a numpy.ndarray along specified axes without importing modules
+"""Slice a numpy.ndarray along specified axes without importing modules.
+
+This module provides `np_slice(matrix, axes)` which returns a copy of the
+requested slice of `matrix`. `axes` is a dict mapping axis index to a slice
+specification which may be an int or a tuple/list of 1..3 items that will be
+passed to Python's built-in slice (e.g. (start, stop, step)).
+"""
 
 
 def np_slice(matrix, axes=None):
@@ -25,9 +31,10 @@ def np_slice(matrix, axes=None):
             slices[ax] = spec
             continue
 
-        # treat single-element sequences as an index
+        # treat single-element sequences as a single-parameter slice
+        # (slice(stop)) rather than an index to match expected behavior.
         if isinstance(spec, (list, tuple)) and len(spec) == 1:
-            slices[ax] = spec[0]
+            slices[ax] = slice(*spec)
             continue
 
         # sequence with 2 or 3 items -> create a slice

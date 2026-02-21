@@ -32,3 +32,18 @@ class Exponential:
 
             mean = sum(data) / len(data)
             self.lambtha = float(1 / mean)
+
+    def pdf(self, x):
+        """Calculates the PDF value for a given time period.
+
+        Args:
+            x (float): time period
+
+        Returns:
+            float: PDF value for x
+        """
+        if x < 0:
+            return 0
+
+        e = 2.7182818285
+        return self.lambtha * (e ** (-self.lambtha * x))

@@ -13,7 +13,7 @@ class Poisson:
 
         Args:
             data (list): list of data to estimate the distribution parameter
-            lambtha (float): expected number of occurrences in a given timeframe
+            lambtha (float): expected number of occurrences
 
         Raises:
             ValueError: if lambtha is not a positive value when data is None

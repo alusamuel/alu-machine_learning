@@ -42,4 +42,3 @@ class Normal:
 
             self.mean = float(mean_value)
             self.stddev = float(variance ** 0.5)
-  

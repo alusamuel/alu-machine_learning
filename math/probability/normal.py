@@ -69,25 +69,26 @@ class Normal:
 
         return (1 / denominator) * exponent
 
-    def cdf(self, x):
-        """Calculates the CDF value for a given x-value.
+    def erf(self, x):
+        """Approximate the error function erf(x).
 
         Args:
-            x (float): x-value
+            x (float): value to evaluate
 
         Returns:
-            float: CDF value for x
+            float: erf(x)
         """
-        pi = 3.1415926536
-        e = 2.7182818285
+        e = 2.718281828459045
 
-        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+        sign = 1
+        if x < 0:
+            sign = -1
+        x = abs(x)
 
-        # Abramowitz & Stegun approximation
-        t = 1 / (1 + 0.5 * abs(z))
+        t = 1.0 / (1.0 + 0.5 * x)
 
-        poly = (
-            -z * z
+        tau_exp = (
+            -x * x
             - 1.26551223
             + 1.00002368 * t
             + 0.37409196 * (t ** 2)
@@ -100,9 +101,19 @@ class Normal:
             + 0.17087277 * (t ** 9)
         )
 
-        erf = 1 - t * (e ** poly)
+        tau = t * (e ** tau_exp)
+        erf_val = 1.0 - tau
 
-        if z < 0:
-            erf = -erf
+        return sign * erf_val
 
-        return 0.5 * (1 + erf)
+    def cdf(self, x):
+        """Calculates the CDF value for a given x-value.
+
+        Args:
+            x (float): x-value
+
+        Returns:
+            float: CDF value for x
+        """
+        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+        return 0.5 * (1.0 + self.erf(z))

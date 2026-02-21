@@ -106,27 +106,7 @@ class Normal:
 
         return sign * erf_val
 
-def cdf(self, x):
-    """Calculates the CDF value for a given x-value.
-
-    Args:
-        x (float): x-value
-
-    Returns:
-        float: CDF value for x
-    """
-    pi = 3.1415926536
-
-    # z = (x - mean) / (stddev * sqrt(2))
-    z = (x - self.mean) / (self.stddev * (2 ** 0.5))
-
-    # erf(z) approximation (required by this project)
-    erf = (2 / (pi ** 0.5)) * (
-        z
-        - (z ** 3) / 3
-        + (z ** 5) / 10
-        - (z ** 7) / 42
-        + (z ** 9) / 216
-    )
-
-    return 0.5 * (1 + erf)
+    def cdf(self, x):
+        """Calculates the value of the CDF for a given x-value"""
+        z = (x - self.mean) / (self.stddev * math.sqrt(2))
+        return 0.5 * (1 + math.erf(z))

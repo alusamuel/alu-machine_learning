@@ -70,15 +70,15 @@ class Normal:
         return (1 / denominator) * exponent
 
     def cdf(self, x):
-        """Calculates the value of the CDF for a given x-value"""
+        """Calculates the value of the CDF for a given x-value."""
         e = 2.718281828459045
-    
+
         z = (x - self.mean) / (self.stddev * (2 ** 0.5))
-    
+
         t = 1.0 / (1.0 + 0.5 * abs(z))
-    
+
         tau = t * (e ** (
-            -z*z
+            -z * z
             - 1.26551223
             + 1.00002368 * t
             + 0.37409196 * (t ** 2)
@@ -90,10 +90,10 @@ class Normal:
             - 0.82215223 * (t ** 8)
             + 0.17087277 * (t ** 9)
         ))
-    
+
         erf = 1 - tau
-    
+
         if z < 0:
             erf = -erf
-    
+
         return 0.5 * (1 + erf)

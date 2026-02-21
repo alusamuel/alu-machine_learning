@@ -68,3 +68,41 @@ class Normal:
         denominator = self.stddev * ((2 * pi) ** 0.5)
 
         return (1 / denominator) * exponent
+
+    def cdf(self, x):
+        """Calculates the CDF value for a given x-value.
+
+        Args:
+            x (float): x-value
+
+        Returns:
+            float: CDF value for x
+        """
+        pi = 3.1415926536
+        e = 2.7182818285
+
+        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+
+        # Abramowitz & Stegun approximation
+        t = 1 / (1 + 0.5 * abs(z))
+
+        poly = (
+            -z * z
+            - 1.26551223
+            + 1.00002368 * t
+            + 0.37409196 * (t ** 2)
+            + 0.09678418 * (t ** 3)
+            - 0.18628806 * (t ** 4)
+            + 0.27886807 * (t ** 5)
+            - 1.13520398 * (t ** 6)
+            + 1.48851587 * (t ** 7)
+            - 0.82215223 * (t ** 8)
+            + 0.17087277 * (t ** 9)
+        )
+
+        erf = 1 - t * (e ** poly)
+
+        if z < 0:
+            erf = -erf
+
+        return 0.5 * (1 + erf)

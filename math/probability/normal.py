@@ -71,5 +71,29 @@ class Normal:
 
     def cdf(self, x):
         """Calculates the value of the CDF for a given x-value"""
-        z = (x - self.mean) / self.stddev
-        return 0.5 * (1 + self.erf(z / (2 ** 0.5)))
+        e = 2.718281828459045
+    
+        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+    
+        t = 1.0 / (1.0 + 0.5 * abs(z))
+    
+        tau = t * (e ** (
+            -z*z
+            - 1.26551223
+            + 1.00002368 * t
+            + 0.37409196 * (t ** 2)
+            + 0.09678418 * (t ** 3)
+            - 0.18628806 * (t ** 4)
+            + 0.27886807 * (t ** 5)
+            - 1.13520398 * (t ** 6)
+            + 1.48851587 * (t ** 7)
+            - 0.82215223 * (t ** 8)
+            + 0.17087277 * (t ** 9)
+        ))
+    
+        erf = 1 - tau
+    
+        if z < 0:
+            erf = -erf
+    
+        return 0.5 * (1 + erf)

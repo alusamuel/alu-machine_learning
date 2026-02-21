@@ -69,46 +69,7 @@ class Normal:
 
         return (1 / denominator) * exponent
 
-    def erf(self, x):
-        """Approximate the error function erf(x).
-
-        Args:
-            x (float): value to evaluate
-
-        Returns:
-            float: erf(x)
-        """
-        e = 2.718281828459045
-
-        sign = 1
-        if x < 0:
-            sign = -1
-        x = abs(x)
-
-        t = 1.0 / (1.0 + 0.5 * x)
-
-        tau_exp = (
-            -x * x
-            - 1.26551223
-            + 1.00002368 * t
-            + 0.37409196 * (t ** 2)
-            + 0.09678418 * (t ** 3)
-            - 0.18628806 * (t ** 4)
-            + 0.27886807 * (t ** 5)
-            - 1.13520398 * (t ** 6)
-            + 1.48851587 * (t ** 7)
-            - 0.82215223 * (t ** 8)
-            + 0.17087277 * (t ** 9)
-        )
-
-        tau = t * (e ** tau_exp)
-        erf_val = 1.0 - tau
-
-        return sign * erf_val
-
     def cdf(self, x):
         """Calculates the value of the CDF for a given x-value"""
-        pi = 3.1415926536
-    
-        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
-        return 0.5 * (1 + self.erf(z))
+        z = (x - self.mean) / self.stddev
+        return 0.5 * (1 + self.erf(z / (2 ** 0.5)))

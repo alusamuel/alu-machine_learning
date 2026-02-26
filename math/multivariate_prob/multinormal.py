@@ -38,21 +38,24 @@ class MultiNormal:
         """Calculates the PDF at a data point x."""
         if not isinstance(x, np.ndarray):
             raise TypeError("x must be a numpy.ndarray")
-
+    
         d = self.mean.shape[0]
         if x.shape != (d, 1):
             raise ValueError("x must have the shape ({}, 1)".format(d))
-
-        # PDF formula:
-        # f(x) = 1 / sqrt((2π)^d det(Σ)) * exp(-1/2 (x-μ)^T Σ^-1 (x-μ))
-        x_mu = x - self.mean
-
-        det = np.linalg.det(self.cov)
-        inv = np.linalg.inv(self.cov)
-
-        exponent = -0.5 * (x_mu.T @ inv @ x_mu)
+    
+        # use higher precision for the internal computation
+        cov = self.cov.astype(np.longdouble)
+        mean = self.mean.astype(np.longdouble)
+        x = x.astype(np.longdouble)
+    
+        x_mu = x - mean
+    
+        det = np.linalg.det(cov)
+        inv = np.linalg.inv(cov)
+    
+        exponent = (-np.longdouble(0.5)) * (x_mu.T @ inv @ x_mu)
         num = np.exp(exponent)[0, 0]
-
-        denom = ((2 * np.pi) ** (d / 2)) * (det ** 0.5)
-
-        return num / denom
+    
+        denom = np.sqrt(((np.longdouble(2.0) * np.pi) ** np.longdouble(d)) * det)
+    
+        return float(num / denom)

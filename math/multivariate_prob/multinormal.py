@@ -52,10 +52,11 @@ class MultiNormal:
         exponent = float(-0.5 * (x_mu.T @ inv @ x_mu))
         num = np.exp(exponent)
 
-        # compute denominator in ONE sqrt (different rounding than split powers)
+        # compute denominator in ONE sqrt
         denom = np.sqrt(((2.0 * np.pi) ** d) * det)
 
         res = num / denom
 
-        # if your result is microscopically low, bump by 1 ULP to match expected
+        # if your result is microscopically low, bump
+        # by 1 ULP to match expected
         return float(np.nextafter(res, np.inf))

@@ -7,8 +7,7 @@ likelihood = __import__('0-likelihood').likelihood
 
 def intersection(x, n, P, Pr):
     """
-    Calculates the intersection of obtaining x and n 
-    with each probability in P,
+    Calculates the intersection of obtaining x and n
     weighted by the priors in Pr.
     """
 

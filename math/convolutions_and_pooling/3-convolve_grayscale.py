@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
-"""Convolution on images with channels."""
+"""Strided convolution on grayscale images."""
 import numpy as np
 
 
-def convolve_channels(images, kernel, padding='same', stride=(1, 1)):
-    """Performs a convolution on images with channels.
+def convolve_grayscale(images, kernel, padding='same', stride=(1, 1)):
+    """Performs a convolution on grayscale images.
 
-    images: np.ndarray of shape (m, h, w, c)
-    kernel: np.ndarray of shape (kh, kw, c)
+    images: np.ndarray of shape (m, h, w)
+    kernel: np.ndarray of shape (kh, kw)
     padding: 'same', 'valid', or (ph, pw)
     stride: tuple (sh, sw)
 
     Returns: np.ndarray containing the convolved images.
     """
-    m, h, w, c = images.shape
-    kh, kw, kc = kernel.shape
+    m, h, w = images.shape
+    kh, kw = kernel.shape
     sh, sw = stride
 
-    if kc != c:
-        raise ValueError("Kernel channels must match image channels")
-
+    # compute padding
     if padding == 'valid':
         ph = 0
         pw = 0
     elif padding == 'same':
+        # padding chosen so that output height = ceil(h / sh),
+        # output width = ceil(w / sw)
         out_h = (h + sh - 1) // sh
         out_w = (w + sw - 1) // sw
 
@@ -35,9 +35,10 @@ def convolve_channels(images, kernel, padding='same', stride=(1, 1)):
     else:
         ph, pw = padding
 
+    # pad images with zeros
     images_padded = np.pad(
         images,
-        ((0, 0), (ph, ph), (pw, pw), (0, 0)),
+        ((0, 0), (ph, ph), (pw, pw)),
         mode='constant'
     )
 
@@ -53,7 +54,7 @@ def convolve_channels(images, kernel, padding='same', stride=(1, 1)):
             i_start = i * sh
             j_start = j * sw
             window = images_padded[:, i_start:i_start + kh,
-                                   j_start:j_start + kw, :]
-            output[:, i, j] = np.sum(window * kernel, axis=(1, 2, 3))
+                                   j_start:j_start + kw]
+            output[:, i, j] = np.sum(window * kernel, axis=(1, 2))
 
     return output

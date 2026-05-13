@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+"""Deep neural network for binary classification with save/load"""
+import numpy as np
+import pickle
+
+
+class DeepNeuralNetwork:
+    """Defines a deep neural network performing binary classification"""
+
+    def __init__(self, nx, layers):
+        """
+        Initialize the deep neural network.
+
+        nx: number of input features
+        layers: list of nodes in each layer of the network
+        """
+        if not isinstance(nx, int):
+            raise TypeError("nx must be an integer")
+        if nx < 1:
+            raise ValueError("nx must be a positive integer")
+
+        if not isinstance(layers, list):
+            raise TypeError("layers must be a list of positive integers")
+        if len(layers) == 0 or not all(
+            isinstance(n, int) and n > 0 for n in layers
+        ):
+            raise TypeError("layers must be a list of positive integers")
+
+        self.__L = len(layers)
+        self.__cache = {}
+        self.__weights = {}
+
+        # He initialization
+        for layer in range(1, self.__L + 1):
+            if layer == 1:
+                n_prev = nx
+            else:
+                n_prev = layers[layer - 2]
+            n_curr = layers[layer - 1]
+
+            self.__weights["W{}".format(layer)] = (
+                np.random.randn(n_curr, n_prev) * np.sqrt(2 / n_prev)
+            )
+            self.__weights["b{}".format(layer)] = np.zeros((n_curr, 1))
+
+    @property
+    def L(self):
+        return self.__L
+
+    @property
+    def cache(self):
+        return self.__cache
+
+    @property
+    def weights(self):
+        return self.__weights
+
+    def forward_prop(self, X):
+        """Calculates forward propagation of the deep neural network."""
+        self.__cache["A0"] = X
+
+        for layer in range(1, self.__L + 1):
+            Wl = self.__weights["W{}".format(layer)]
+            bl = self.__weights["b{}".format(layer)]
+            Al_prev = self.__cache["A{}".format(layer - 1)]
+
+            Zl = np.matmul(Wl, Al_prev) + bl
+            Al = 1 / (1 + np.exp(-Zl))  # sigmoid
+            self.__cache["A{}".format(layer)] = Al
+
+        return self.__cache["A{}".format(self.__L)], self.__cache
+
+    def cost(self, Y, A):
+        """Calculates the cost of the model using logistic regression."""
+        m = Y.shape[1]
+        cost = - (1 / m) * np.sum(
+            Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)
+        )
+        return cost
+
+    def evaluate(self, X, Y):
+        """Evaluates the deep neural network’s predictions."""
+        A, _ = self.forward_prop(X)
+        cost = self.cost(Y, A)
+        prediction = np.where(A >= 0.5, 1, 0)
+        return prediction, cost
+
+    def gradient_descent(self, Y, cache, alpha=0.05):
+        """Performs one pass of gradient descent on the deep neural network."""
+        m = Y.shape[1]
+        L = self.__L
+
+        dZ = cache["A{}".format(L)] - Y
+
+        for layer in range(L, 0, -1):
+            Al_prev = cache["A{}".format(layer - 1)]
+            Wl = self.__weights["W{}".format(layer)]
+
+            dW = (1 / m) * np.matmul(dZ, Al_prev.T)
+            db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
+
+            self.__weights["W{}".format(layer)] = Wl - alpha * dW
+            self.__weights["b{}".format(layer)] = (
+                self.__weights["b{}".format(layer)] - alpha * db
+            )
+
+            if layer > 1:
+                Al_prev = cache["A{}".format(layer - 1)]
+                dZ = np.matmul(Wl.T, dZ) * (Al_prev * (1 - Al_prev))
+
+    def train(self, X, Y,
+              iterations=5000, alpha=0.05,
+              verbose=True, graph=True, step=100):
+        """
+        Trains the deep neural network.
+
+        Returns: evaluation of training data after 'iterations'
+        """
+        import matplotlib.pyplot as plt
+
+        # Validate iterations
+        if not isinstance(iterations, int):
+            raise TypeError("iterations must be an integer")
+        if iterations <= 0:
+            raise ValueError("iterations must be a positive integer")
+
+        # Validate alpha
+        if not isinstance(alpha, float):
+            raise TypeError("alpha must be a float")
+        if alpha <= 0:
+            raise ValueError("alpha must be positive")
+
+        # Validate step only if needed
+        if verbose or graph:
+            if not isinstance(step, int):
+                raise TypeError("step must be an integer")
+            if step <= 0 or step > iterations:
+                raise ValueError("step must be positive and <= iterations")
+
+        costs = []
+        iters = []
+
+        # 0th iteration: before any training
+        A, cache = self.forward_prop(X)
+        c0 = self.cost(Y, A)
+        if verbose:
+            print("Cost after {} iterations: {}".format(0, c0))
+        if graph:
+            costs.append(c0)
+            iters.append(0)
+
+        # One training loop
+        for i in range(1, iterations + 1):
+            self.gradient_descent(Y, cache, alpha)
+            A, cache = self.forward_prop(X)
+
+            if i % step == 0 or i == iterations:
+                c = self.cost(Y, A)
+                if verbose:
+                    print("Cost after {} iterations: {}".format(i, c))
+                if graph:
+                    costs.append(c)
+                    iters.append(i)
+
+        if graph:
+            plt.plot(iters, costs, 'b-')
+            plt.xlabel("iteration")
+            plt.ylabel("cost")
+            plt.title("Training Cost")
+            plt.show()
+
+        return self.evaluate(X, Y)
+
+    def save(self, filename):
+        """
+        Saves the instance object to a file in pickle format.
+
+        filename: file to which the object should be saved
+        If filename does not end with '.pkl', append it.
+        """
+        if not isinstance(filename, str):
+            return
+
+        if not filename.endswith(".pkl"):
+            filename = filename + ".pkl"
+
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def load(filename):
+        """
+        Loads a pickled DeepNeuralNetwork object.
+
+        filename: file from which the object should be loaded
+        Returns: the loaded object, or None if filename doesn’t exist
+        """
+        try:
+            with open(filename, "rb") as f:
+                obj = pickle.load(f)
+            return obj
+        except FileNotFoundError:
+            return None

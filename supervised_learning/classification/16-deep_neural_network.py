@@ -4,14 +4,16 @@ import numpy as np
 
 
 class DeepNeuralNetwork:
-    """Defines a deep neural network performing binary classification"""
+    """
+    Defines a deep neural network performing binary classification
+    """
 
     def __init__(self, nx, layers):
         """
-        Initialize the deep neural network.
+        Initializes the deep neural network.
 
         nx: number of input features
-        layers: list of nodes in each layer
+        layers: list representing the number of nodes in each layer
         """
         # Validate nx
         if not isinstance(nx, int):
@@ -25,21 +27,34 @@ class DeepNeuralNetwork:
         if not all(isinstance(n, int) and n > 0 for n in layers):
             raise TypeError("layers must be a list of positive integers")
 
-        # Public attributes
-        self.L = len(layers)
-        self.cache = {}
-        self.weights = {}
+        self.__L = len(layers)
+        self.__cache = {}
+        self.__weights = {}
 
-        # He initialization for each layer (one loop allowed)
-        for layer in range(1, self.L + 1):
+        # He et al. initialization, single loop
+        for layer in range(1, self.__L + 1):
             if layer == 1:
                 n_prev = nx
             else:
                 n_prev = layers[layer - 2]
             n_curr = layers[layer - 1]
 
-            # He et al. initialization: N(0, sqrt(2 / n_prev))
-            self.weights["W{}".format(layer)] = (
+            self.__weights["W{}".format(layer)] = (
                 np.random.randn(n_curr, n_prev) * np.sqrt(2 / n_prev)
             )
-            self.weights["b{}".format(layer)] = np.zeros((n_curr, 1))
+            self.__weights["b{}".format(layer)] = np.zeros((n_curr, 1))
+
+    @property
+    def L(self):
+        """Number of layers in the neural network."""
+        return self.__L
+
+    @property
+    def cache(self):
+        """Dictionary holding intermediary values of the network."""
+        return self.__cache
+
+    @property
+    def weights(self):
+        """Dictionary holding all weights and biases of the network."""
+        return self.__weights

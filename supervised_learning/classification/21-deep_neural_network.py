@@ -18,11 +18,7 @@ class DeepNeuralNetwork:
         if nx < 1:
             raise ValueError("nx must be a positive integer")
 
-        if not isinstance(layers, list):
-            raise TypeError("layers must be a list of positive integers")
-        if len(layers) == 0 or not all(
-            isinstance(n, int) and n > 0 for n in layers
-        ):
+        if not isinstance(layers, list) or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
 
         self.__L = len(layers)
@@ -31,6 +27,8 @@ class DeepNeuralNetwork:
 
         # He initialization
         for layer in range(1, self.__L + 1):
+            if not isinstance(layers[layer - 1], int) or layers[layer - 1] < 1:
+                raise TypeError("layers must be a list of positive integers")
             if layer == 1:
                 n_prev = nx
             else:
@@ -44,14 +42,17 @@ class DeepNeuralNetwork:
 
     @property
     def L(self):
+        """Number of layers in the neural network."""
         return self.__L
 
     @property
     def cache(self):
+        """Dictionary holding intermediary values of the network."""
         return self.__cache
 
     @property
     def weights(self):
+        """Dictionary holding all weights and biases of the network."""
         return self.__weights
 
     def forward_prop(self, X):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deep neural network for binary classification (with train)"""
+"""Deep neural network binary classification with training."""
 import numpy as np
 
 
@@ -18,19 +18,16 @@ class DeepNeuralNetwork:
         if nx < 1:
             raise ValueError("nx must be a positive integer")
 
-        if not isinstance(layers, list):
-            raise TypeError("layers must be a list of positive integers")
-        if len(layers) == 0 or not all(
-            isinstance(n, int) and n > 0 for n in layers
-        ):
+        if not isinstance(layers, list) or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
 
         self.__L = len(layers)
         self.__cache = {}
         self.__weights = {}
 
-        # He initialization
         for layer in range(1, self.__L + 1):
+            if not isinstance(layers[layer - 1], int) or layers[layer - 1] < 1:
+                raise TypeError("layers must be a list of positive integers")
             if layer == 1:
                 n_prev = nx
             else:
@@ -44,14 +41,17 @@ class DeepNeuralNetwork:
 
     @property
     def L(self):
+        """Number of layers in the neural network."""
         return self.__L
 
     @property
     def cache(self):
+        """Dictionary holding intermediary values of the network."""
         return self.__cache
 
     @property
     def weights(self):
+        """Dictionary holding all weights and biases of the network."""
         return self.__weights
 
     def forward_prop(self, X):
@@ -69,7 +69,7 @@ class DeepNeuralNetwork:
             Al_prev = self.__cache["A{}".format(layer - 1)]
 
             Zl = np.matmul(Wl, Al_prev) + bl
-            Al = 1 / (1 + np.exp(-Zl))  # sigmoid
+            Al = 1 / (1 + np.exp(-Zl))
             self.__cache["A{}".format(layer)] = Al
 
         return self.__cache["A{}".format(self.__L)], self.__cache
@@ -89,7 +89,7 @@ class DeepNeuralNetwork:
 
     def evaluate(self, X, Y):
         """
-        Evaluates the deep neural network’s predictions.
+        Evaluates the deep neural network's predictions.
 
         X: numpy.ndarray of shape (nx, m)
         Y: numpy.ndarray of shape (1, m)
@@ -140,22 +140,18 @@ class DeepNeuralNetwork:
         alpha: learning rate
         Returns: evaluation of training data after 'iterations'
         """
-        # Validate iterations
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
             raise ValueError("iterations must be a positive integer")
 
-        # Validate alpha
         if not isinstance(alpha, float):
             raise TypeError("alpha must be a float")
         if alpha <= 0:
             raise ValueError("alpha must be positive")
 
-        # One training loop
         for _ in range(iterations):
             A, cache = self.forward_prop(X)
             self.gradient_descent(Y, cache, alpha)
 
-        # __cache and __weights have been updated through training
         return self.evaluate(X, Y)

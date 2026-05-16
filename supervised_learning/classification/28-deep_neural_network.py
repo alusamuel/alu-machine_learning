@@ -48,14 +48,17 @@ class DeepNeuralNetwork:
 
     @property
     def L(self):
+        """Number of layers in the neural network."""
         return self.__L
 
     @property
     def cache(self):
+        """Dictionary holding intermediary values of the network."""
         return self.__cache
 
     @property
     def weights(self):
+        """Dictionary holding all weights and biases of the network."""
         return self.__weights
 
     @property
@@ -115,7 +118,7 @@ class DeepNeuralNetwork:
         A: probabilities (classes, m)
         """
         m = Y.shape[1]
-        cost = - (1 / m) * np.sum(Y * np.log(A + 1.0e-8))
+        cost = - (1 / m) * np.sum(Y * np.log(A))
         return cost
 
     def evaluate(self, X, Y):

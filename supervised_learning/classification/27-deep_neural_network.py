@@ -7,11 +7,13 @@ import pickle
 class DeepNeuralNetwork:
     """Defines a deep neural network performing multiclass classification"""
 
-    # __init__, properties, gradient_descent, train, save, load
-    # remain the same as in 26-deep_neural_network.py
-
     def __init__(self, nx, layers):
-        # ... same as 26-deep_neural_network.py ...
+        """
+        Initialize the deep neural network.
+
+        nx: number of input features
+        layers: list of nodes in each layer of the network
+        """
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
@@ -41,14 +43,17 @@ class DeepNeuralNetwork:
 
     @property
     def L(self):
+        """Number of layers in the neural network."""
         return self.__L
 
     @property
     def cache(self):
+        """Dictionary holding intermediary values of the network."""
         return self.__cache
 
     @property
     def weights(self):
+        """Dictionary holding all weights and biases of the network."""
         return self.__weights
 
     def forward_prop(self, X):
@@ -91,13 +96,12 @@ class DeepNeuralNetwork:
         A: predicted probabilities of shape (classes, m)
         """
         m = Y.shape[1]
-        # Add small epsilon for numerical stability
-        cost = - (1 / m) * np.sum(Y * np.log(A + 1.0e-8))
+        cost = - (1 / m) * np.sum(Y * np.log(A))
         return cost
 
     def evaluate(self, X, Y):
         """
-        Evaluates the deep neural network’s predictions for multiclass.
+        Evaluates the deep neural network's predictions for multiclass.
 
         X: numpy.ndarray of shape (nx, m)
         Y: one-hot numpy.ndarray of shape (classes, m)
@@ -149,7 +153,11 @@ class DeepNeuralNetwork:
     def train(self, X, Y,
               iterations=5000, alpha=0.05,
               verbose=True, graph=True, step=100):
-        # ... same as 26-deep_neural_network.py ...
+        """
+        Trains the deep neural network.
+
+        Returns: evaluation of training data after 'iterations'
+        """
         import matplotlib.pyplot as plt
 
         if not isinstance(iterations, int):
@@ -201,7 +209,7 @@ class DeepNeuralNetwork:
         return self.evaluate(X, Y)
 
     def save(self, filename):
-        # ... same as 26-deep_neural_network.py ...
+        """Saves the instance object to a pickle file."""
         if not isinstance(filename, str):
             return
         if not filename.endswith(".pkl"):
@@ -211,7 +219,7 @@ class DeepNeuralNetwork:
 
     @staticmethod
     def load(filename):
-        # ... same as 26-deep_neural_network.py ...
+        """Loads a pickled DeepNeuralNetwork object, or None if not found."""
         try:
             with open(filename, "rb") as f:
                 obj = pickle.load(f)

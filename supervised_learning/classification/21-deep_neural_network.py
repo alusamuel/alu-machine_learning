@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deep neural network for binary classification (with gradient descent)"""
+"""Deep neural network binary classification with gradient descent."""
 import numpy as np
 
 
@@ -25,7 +25,6 @@ class DeepNeuralNetwork:
         self.__cache = {}
         self.__weights = {}
 
-        # He initialization
         for layer in range(1, self.__L + 1):
             if not isinstance(layers[layer - 1], int) or layers[layer - 1] < 1:
                 raise TypeError("layers must be a list of positive integers")
@@ -97,10 +96,8 @@ class DeepNeuralNetwork:
         m = Y.shape[1]
         L = self.__L
 
-        # Initialize dZ for the output layer
         dZ = cache["A{}".format(L)] - Y
 
-        # One loop backward over layers L..1
         for layer in range(L, 0, -1):
             Al_prev = cache["A{}".format(layer - 1)]
             Wl = self.__weights["W{}".format(layer)]
@@ -108,13 +105,11 @@ class DeepNeuralNetwork:
             dW = (1 / m) * np.matmul(dZ, Al_prev.T)
             db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
 
-            # Update weights and biases
             self.__weights["W{}".format(layer)] = Wl - alpha * dW
             self.__weights["b{}".format(layer)] = (
                 self.__weights["b{}".format(layer)] - alpha * db
             )
 
             if layer > 1:
-                # Compute dZ for the previous layer using sigmoid derivative
                 Al_prev = cache["A{}".format(layer - 1)]
                 dZ = np.matmul(Wl.T, dZ) * (Al_prev * (1 - Al_prev))

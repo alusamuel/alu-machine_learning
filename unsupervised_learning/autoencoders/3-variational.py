@@ -66,14 +66,17 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     decoded = decoder(encoded)
     auto = keras.Model(auto_input, decoded, name='autoencoder')
 
-    # KL divergence
-    kl_loss = -0.5 * keras.backend.sum(
-        1 + z_log_sigma - keras.backend.square(z_mean)
-        - keras.backend.exp(z_log_sigma),
-        axis=1
-    )
+    def vae_loss(y, y_pred):
+        """Calculates the variational autoencoder loss."""
+        reconstruction_loss = keras.backend.binary_crossentropy(y, y_pred)
+        reconstruction_loss = keras.backend.sum(reconstruction_loss, axis=1)
+        kl_loss = -0.5 * keras.backend.sum(
+            1 + z_log_sigma - keras.backend.square(z_mean)
+            - keras.backend.exp(z_log_sigma),
+            axis=1
+        )
+        return reconstruction_loss + kl_loss
 
-    auto.add_loss(keras.backend.mean(kl_loss))
-    auto.compile(optimizer='adam', loss='binary_crossentropy')
+    auto.compile(optimizer='adam', loss=vae_loss)
 
     return encoder, decoder, auto

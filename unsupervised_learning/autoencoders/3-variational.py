@@ -61,8 +61,10 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     decoder = keras.Model(latent_inputs, outputs, name='decoder')
 
     # VAE model
-    outputs = decoder(z)
-    auto = keras.Model(inputs, outputs, name='variational_autoencoder')
+    auto_input = keras.layers.Input(shape=(input_dims,))
+    encoded, z_mean, z_log_sigma = encoder(auto_input)
+    decoded = decoder(encoded)
+    auto = keras.Model(auto_input, decoded, name='autoencoder')
 
     # KL divergence
     kl_loss = -0.5 * keras.backend.sum(

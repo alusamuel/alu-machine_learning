@@ -9,16 +9,16 @@ def sampling(args):
     """Reparameterization trick by sampling from an isotropic unit Gaussian.
 
     Args:
-        args: (z_mean, z_log_var)
+        args: (z_mean, z_log_sigma)
 
     Returns:
         Sampled latent vector.
     """
-    z_mean, z_log_var = args
+    z_mean, z_log_sigma = args
     batch = keras.backend.shape(z_mean)[0]
-    dim = keras.backend.shape(z_mean)[1]
+    dim = keras.backend.int_shape(z_mean)[1]
     epsilon = keras.backend.random_normal(shape=(batch, dim))
-    return z_mean + keras.backend.exp(0.5 * z_log_var) * epsilon
+    return z_mean + keras.backend.exp(z_log_sigma / 2) * epsilon
 
 
 def autoencoder(input_dims, hidden_layers, latent_dims):
@@ -30,26 +30,30 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         latent_dims: int, dimensionality of latent space.
 
     Returns:
-        encoder: encoder model (outputs z, z_mean, z_log_var).
+        encoder: encoder model (outputs z, z_mean, z_log_sigma).
         decoder: decoder model.
         auto: full VAE model.
     """
     # Encoder
-    inputs = keras.Input(shape=(input_dims,))
+    inputs = keras.layers.Input(shape=(input_dims,))
     x = inputs
     for units in hidden_layers:
         x = keras.layers.Dense(units, activation='relu')(x)
 
     z_mean = keras.layers.Dense(latent_dims, activation=None, name='z_mean')(x)
-    z_log_var = keras.layers.Dense(
-        latent_dims, activation=None, name='z_log_var'
+    z_log_sigma = keras.layers.Dense(
+        latent_dims, activation=None, name='z_log_sigma'
     )(x)
-    z = keras.layers.Lambda(sampling, name='z')([z_mean, z_log_var])
+    z = keras.layers.Lambda(
+        sampling, output_shape=(latent_dims,), name='z'
+    )([z_mean, z_log_sigma])
 
-    encoder = keras.Model(inputs, [z, z_mean, z_log_var], name='encoder')
+    encoder = keras.Model(inputs, [z, z_mean, z_log_sigma], name='encoder')
 
     # Decoder
-    latent_inputs = keras.Input(shape=(latent_dims,), name='z_sampling')
+    latent_inputs = keras.layers.Input(
+        shape=(latent_dims,), name='z_sampling'
+    )
     x = latent_inputs
     for units in reversed(hidden_layers):
         x = keras.layers.Dense(units, activation='relu')(x)
@@ -60,19 +64,14 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     outputs = decoder(z)
     auto = keras.Model(inputs, outputs, name='variational_autoencoder')
 
-    # Reconstruction loss
-    reconstruction_loss = keras.backend.binary_crossentropy(inputs, outputs)
-    reconstruction_loss = keras.backend.sum(reconstruction_loss, axis=1)
-
     # KL divergence
     kl_loss = -0.5 * keras.backend.sum(
-        1 + z_log_var - keras.backend.square(z_mean)
-        - keras.backend.exp(z_log_var),
+        1 + z_log_sigma - keras.backend.square(z_mean)
+        - keras.backend.exp(z_log_sigma),
         axis=1
     )
 
-    vae_loss = keras.backend.mean(reconstruction_loss + kl_loss)
-    auto.add_loss(vae_loss)
-    auto.compile(optimizer='adam')
+    auto.add_loss(keras.backend.mean(kl_loss))
+    auto.compile(optimizer='adam', loss='binary_crossentropy')
 
     return encoder, decoder, auto

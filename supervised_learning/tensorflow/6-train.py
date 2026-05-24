@@ -38,9 +38,11 @@ def train(X_train, Y_train, X_valid, Y_valid, layer_sizes, activations,
 
             if i == 0 or i % 100 == 0 or i == iterations:
                 train_cost = sess.run(loss, feed_dict={x: X_train, y: Y_train})
-                train_acc = sess.run(accuracy, feed_dict={x: X_train, y: Y_train})
+                train_acc = sess.run(
+                    accuracy, feed_dict={x: X_train, y: Y_train})
                 valid_cost = sess.run(loss, feed_dict={x: X_valid, y: Y_valid})
-                valid_acc = sess.run(accuracy, feed_dict={x: X_valid, y: Y_valid})
+                valid_acc = sess.run(
+                    accuracy, feed_dict={x: X_valid, y: Y_valid})
                 print("After {} iterations:".format(i))
                 print("\tTraining Cost: {}".format(train_cost))
                 print("\tTraining Accuracy: {}".format(train_acc))

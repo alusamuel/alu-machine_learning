@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Defines a function that creates placeholders for the input data and labels."""
+"""Defines a function that creates placeholders."""
 
 import tensorflow as tf
 

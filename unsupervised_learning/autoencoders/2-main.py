@@ -18,15 +18,15 @@ np.random.seed(0)
 tf.set_random_seed(0)
 encoder, decoder, auto = autoencoder((28, 28, 1), [16, 8, 8], (4, 4, 8))
 auto.fit(x_train, x_train, epochs=50, batch_size=256, shuffle=True,
-                validation_data=(x_test, x_test))
+         validation_data=(x_test, x_test))
 encoded = encoder.predict(x_test[:10])
 print(np.mean(encoded))
-reconstructed = decoder.predict(encoded)[:,:,:,0]
+reconstructed = decoder.predict(encoded)[:, :, :, 0]
 
 for i in range(10):
     ax = plt.subplot(2, 10, i + 1)
     ax.axis('off')
-    plt.imshow(x_test[i,:,:,0])
+    plt.imshow(x_test[i, :, :, 0])
     ax = plt.subplot(2, 10, i + 11)
     ax.axis('off')
     plt.imshow(reconstructed[i])

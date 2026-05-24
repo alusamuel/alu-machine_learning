@@ -13,7 +13,11 @@ forward_prop = __import__('2-forward_prop').forward_prop
 def train(X_train, Y_train, X_valid, Y_valid, layer_sizes, activations,
           alpha, iterations, save_path="/tmp/model.ckpt"):
     """Build, train, and save the model."""
+    graph_seed = tf.get_default_graph().seed
     tf.reset_default_graph()
+    if graph_seed is not None:
+        tf.set_random_seed(graph_seed)
+
     x, y = create_placeholders(X_train.shape[1], Y_train.shape[1])
     y_pred = forward_prop(x, layer_sizes, activations)
     loss = calculate_loss(y, y_pred)

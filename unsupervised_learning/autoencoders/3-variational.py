@@ -3,7 +3,6 @@
 """
 
 import tensorflow.keras as keras
-import tensorflow as tf
 
 
 def sampling(args):
@@ -16,10 +15,10 @@ def sampling(args):
         Sampled latent vector.
     """
     z_mean, z_log_var = args
-    batch = tf.shape(z_mean)[0]
-    dim = tf.shape(z_mean)[1]
-    epsilon = tf.random_normal(shape=(batch, dim))
-    return z_mean + tf.exp(0.5 * z_log_var) * epsilon
+    batch = keras.backend.shape(z_mean)[0]
+    dim = keras.backend.shape(z_mean)[1]
+    epsilon = keras.backend.random_normal(shape=(batch, dim))
+    return z_mean + keras.backend.exp(0.5 * z_log_var) * epsilon
 
 
 def autoencoder(input_dims, hidden_layers, latent_dims):
@@ -62,16 +61,17 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     auto = keras.Model(inputs, outputs, name='variational_autoencoder')
 
     # Reconstruction loss
-    reconstruction_loss = keras.losses.binary_crossentropy(inputs, outputs)
-    reconstruction_loss = tf.reduce_sum(reconstruction_loss, axis=1)
+    reconstruction_loss = keras.backend.binary_crossentropy(inputs, outputs)
+    reconstruction_loss = keras.backend.sum(reconstruction_loss, axis=1)
 
     # KL divergence
-    kl_loss = -0.5 * tf.reduce_sum(
-        1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var),
+    kl_loss = -0.5 * keras.backend.sum(
+        1 + z_log_var - keras.backend.square(z_mean)
+        - keras.backend.exp(z_log_var),
         axis=1
     )
 
-    vae_loss = tf.reduce_mean(reconstruction_loss + kl_loss)
+    vae_loss = keras.backend.mean(reconstruction_loss + kl_loss)
     auto.add_loss(vae_loss)
     auto.compile(optimizer='adam')
 

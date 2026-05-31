@@ -122,7 +122,8 @@ def model(Data_train, Data_valid, layers, activations,
         beta1=beta1,
         beta2=beta2,
         epsilon=epsilon
-    ).minimize(loss, global_step=global_step)
+    ).minimize(loss)
+    step_op = global_step.assign_add(1)
 
     tf.add_to_collection('x', x)
     tf.add_to_collection('y', y)
@@ -176,5 +177,7 @@ def model(Data_train, Data_valid, layers, activations,
                     print("\tStep {}:".format(step + 1))
                     print("\t\tCost: {}".format(step_cost))
                     print("\t\tAccuracy: {}".format(step_acc))
+
+            sess.run(step_op)
 
         return saver.save(sess, save_path)

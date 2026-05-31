@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Build, train, and save a TF1 model with optimization techniques."""
 
-import numpy as np
 import tensorflow as tf
 shuffle_data = __import__('2-shuffle_data').shuffle_data
 create_batch_norm_layer = __import__('14-batch_norm').create_batch_norm_layer
-create_Adam_op = __import__('10-Adam').create_Adam_op
 learning_rate_decay_tf = __import__(
     '12-learning_rate_decay').learning_rate_decay
 
@@ -34,11 +32,8 @@ def model(Data_train, Data_valid, layers, activations,
                                      global_step, 1)
 
     A = x
-    for i, (nodes, activation) in enumerate(zip(layers, activations)):
-        if i == 0:
-            A = create_batch_norm_layer(A, nodes, activation)
-        else:
-            A = create_batch_norm_layer(A, nodes, activation)
+    for nodes, activation in zip(layers, activations):
+        A = create_batch_norm_layer(A, nodes, activation)
 
     y_pred = A
     loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=y_pred)
@@ -60,7 +55,9 @@ def model(Data_train, Data_valid, layers, activations,
     tf.add_to_collection('train_op', train_op)
 
     saver = tf.train.Saver()
-    steps_per_epoch = int(np.ceil(m / batch_size))
+    steps_per_epoch = m // batch_size
+    if m % batch_size:
+        steps_per_epoch += 1
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -94,7 +91,7 @@ def model(Data_train, Data_valid, layers, activations,
 
                 sess.run(train_op, feed_dict={x: X_batch, y: Y_batch})
 
-                if (step + 1) % 100 == 0 or step == steps_per_epoch - 1:
+                if (step + 1) % 100 == 0:
                     step_cost, step_acc = sess.run(
                         [loss, accuracy],
                         feed_dict={x: X_batch, y: Y_batch}

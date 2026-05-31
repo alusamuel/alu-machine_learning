@@ -3,6 +3,7 @@
 Module for computing a bias-corrected exponentially weighted moving average.
 """
 
+
 def moving_average(data, beta):
     """
     Calculates the weighted moving average of a data set with bias correction.

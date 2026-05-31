@@ -3,7 +3,6 @@
 Mini-batch gradient descent training for a loaded tensorflow model.
 """
 
-import numpy as np
 import tensorflow as tf
 shuffle_data = __import__('2-shuffle_data').shuffle_data
 
@@ -16,9 +15,18 @@ def train_mini_batch(X_train, Y_train,
     """
     Trains a loaded neural network model using mini-batch gradient descent.
 
+    Args:
+        X_train: numpy.ndarray containing the training input data.
+        Y_train: numpy.ndarray containing the training labels.
+        X_valid: numpy.ndarray containing the validation input data.
+        Y_valid: numpy.ndarray containing the validation labels.
+        batch_size: number of data points in each mini-batch.
+        epochs: number of passes through the training data.
+        load_path: path from which to load the saved model.
+        save_path: path where the trained model should be saved.
+
     Returns:
-    - save_path: str
-        Path where the model was saved.
+        The path where the model was saved.
     """
     m = X_train.shape[0]
 
@@ -32,7 +40,9 @@ def train_mini_batch(X_train, Y_train,
         loss = tf.get_collection('loss')[0]
         train_op = tf.get_collection('train_op')[0]
 
-        steps_per_epoch = int(np.ceil(m / batch_size))
+        steps_per_epoch = m // batch_size
+        if m % batch_size:
+            steps_per_epoch += 1
 
         for epoch in range(epochs + 1):
             train_cost, train_acc = sess.run(

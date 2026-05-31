@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""
-Build, train, and save a TF1 model with Adam, mini-batch, decay, and batch norm.
-"""
+"""Build, train, and save a TF1 model with optimization techniques."""
 
 import numpy as np
 import tensorflow as tf
 shuffle_data = __import__('2-shuffle_data').shuffle_data
 create_batch_norm_layer = __import__('14-batch_norm').create_batch_norm_layer
 create_Adam_op = __import__('10-Adam').create_Adam_op
-learning_rate_decay_tf = __import__('12-learning_rate_decay').learning_rate_decay
+learning_rate_decay_tf = __import__(
+    '12-learning_rate_decay').learning_rate_decay
 
 
 def model(Data_train, Data_valid, layers, activations,

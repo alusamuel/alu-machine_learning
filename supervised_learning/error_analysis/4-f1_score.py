@@ -4,6 +4,8 @@ Module for computing F1 score per class from a confusion matrix.
 """
 
 import numpy as np
+sensitivity = __import__('1-sensitivity').sensitivity
+precision = __import__('2-precision').precision
 
 
 def f1_score(confusion):
@@ -24,15 +26,10 @@ def f1_score(confusion):
     if not isinstance(confusion, np.ndarray):
         raise TypeError("confusion must be a numpy.ndarray")
 
-    tp = np.diag(confusion)
-    actual_positives = np.sum(confusion, axis=1)
-    predicted_positives = np.sum(confusion, axis=0)
+    sens = sensitivity(confusion)
+    prec = precision(confusion)
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        sens = tp / actual_positives
-        sens = np.where(actual_positives == 0, 0, sens)
-        prec = tp / predicted_positives
-        prec = np.where(predicted_positives == 0, 0, prec)
         f1 = 2 * sens * prec / (sens + prec)
         f1 = np.where((sens + prec) == 0, 0, f1)
 

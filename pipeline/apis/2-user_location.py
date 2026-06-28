@@ -16,13 +16,13 @@ def get_reset_minutes(reset_timestamp):
         reset_timestamp: Unix timestamp returned by the GitHub API.
 
     Returns:
-        The number of minutes until reset, rounded up to the next minute.
+        The number of whole minutes until reset.
     """
     reset_timestamp = int(reset_timestamp)
-    seconds = reset_timestamp - int(time.time())
+    seconds = reset_timestamp - time.time()
     if seconds <= 0:
         return 0
-    return (seconds + 59) // 60
+    return int(seconds / 60)
 
 
 def print_user_location(url):

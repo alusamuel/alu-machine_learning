@@ -8,38 +8,48 @@ import time
 import requests
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit(0)
+def get_reset_minutes(reset_timestamp):
+    """
+    Calculates the number of minutes until a rate limit reset.
 
-    url = sys.argv[1]
+    Args:
+        reset_timestamp: Unix timestamp returned by the GitHub API.
 
+    Returns:
+        The number of minutes until reset, rounded up to the next minute.
+    """
+    reset_timestamp = int(reset_timestamp)
+    seconds = reset_timestamp - int(time.time())
+    if seconds <= 0:
+        return 0
+    return (seconds + 59) // 60
+
+
+def print_user_location(url):
+    """
+    Prints the location for a GitHub user API URL.
+
+    Args:
+        url: GitHub API URL for the requested user.
+    """
     res = requests.get(url)
     status = res.status_code
 
-    # 404: user not found
     if status == 404:
         print("Not found")
-        sys.exit(0)
+        return
 
-    # 403: rate limit exceeded
     if status == 403:
         reset_ts = res.headers.get("X-RateLimit-Reset")
         if reset_ts is not None:
-            reset_ts = int(reset_ts)
-            now = int(time.time())
-            minutes = int((reset_ts - now) / 60)
-            if minutes < 0:
-                minutes = 0
-            print(f"Reset in {minutes} min")
+            print("Reset in {} min".format(get_reset_minutes(reset_ts)))
         else:
             print("Reset in 0 min")
-        sys.exit(0)
+        return
 
-    # Other errors
     if status != 200:
         print("Not found")
-        sys.exit(0)
+        return
 
     data = res.json()
     location = data.get("location")
@@ -48,3 +58,8 @@ if __name__ == "__main__":
         print(location)
     else:
         print("Not found")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        print_user_location(sys.argv[1])

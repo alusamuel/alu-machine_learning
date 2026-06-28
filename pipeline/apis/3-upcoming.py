@@ -5,22 +5,25 @@ with name, local date, rocket name, and launchpad name+locality.
 """
 
 import requests
-import sys
-from datetime import datetime
 
 
-def get_upcoming_launch():
+BASE_URL = "https://api.spacexdata.com/v4"
+
+
+def get_upcoming_launch(base_url=BASE_URL):
     """
-    Returns a dict describing the upcoming launch.
-    """
-    base_url = "https://api.spacexdata.com/v4"
+    Gets the next upcoming SpaceX launch.
 
-    # Get all upcoming launches
-    launches_res = requests.get(f"{base_url}/launches/upcoming")
+    Args:
+        base_url: Base URL for the SpaceX API.
+
+    Returns:
+        The launch dictionary with the earliest date_unix value, or None.
+    """
+    launches_res = requests.get("{}/launches/upcoming".format(base_url))
     launches_res.raise_for_status()
     launches = launches_res.json()
 
-    # Choose launch with smallest date_unix
     upcoming = None
     for launch in launches:
         date_unix = launch.get("date_unix")
@@ -32,37 +35,65 @@ def get_upcoming_launch():
     return upcoming
 
 
-if __name__ == "__main__":
-    base_url = "https://api.spacexdata.com/v4"
-    upcoming = get_upcoming_launch()
+def get_rocket_name(rocket_id, base_url=BASE_URL):
+    """
+    Gets the name of a SpaceX rocket.
+
+    Args:
+        rocket_id: SpaceX rocket ID.
+        base_url: Base URL for the SpaceX API.
+
+    Returns:
+        The rocket name, or an empty string if it cannot be found.
+    """
+    if not rocket_id:
+        return ""
+    res = requests.get("{}/rockets/{}".format(base_url, rocket_id))
+    if res.status_code != 200:
+        return ""
+    return res.json().get("name", "")
+
+
+def get_launchpad(launchpad_id, base_url=BASE_URL):
+    """
+    Gets launchpad information from the SpaceX API.
+
+    Args:
+        launchpad_id: SpaceX launchpad ID.
+        base_url: Base URL for the SpaceX API.
+
+    Returns:
+        A tuple containing launchpad name and locality.
+    """
+    if not launchpad_id:
+        return "", ""
+    res = requests.get("{}/launchpads/{}".format(base_url, launchpad_id))
+    if res.status_code != 200:
+        return "", ""
+    launchpad = res.json()
+    return launchpad.get("name", ""), launchpad.get("locality", "")
+
+
+def print_upcoming_launch(base_url=BASE_URL):
+    """
+    Prints the next upcoming SpaceX launch.
+
+    Args:
+        base_url: Base URL for the SpaceX API.
+    """
+    upcoming = get_upcoming_launch(base_url)
     if not upcoming:
-        sys.exit(0)
+        return
 
     name = upcoming.get("name")
-    date_unix = upcoming.get("date_unix")
+    date_local = upcoming.get("date_local")
+    rocket_name = get_rocket_name(upcoming.get("rocket"), base_url)
+    launchpad_name, locality = get_launchpad(upcoming.get("launchpad"),
+                                             base_url)
 
-    # Convert to local time ISO string with offset
-    dt_local = datetime.fromtimestamp(date_unix).astimezone()
-    date_str = dt_local.isoformat()
+    print("{} ({}) {} - {} ({})".format(name, date_local, rocket_name,
+                                        launchpad_name, locality))
 
-    # Rocket
-    rocket_id = upcoming.get("rocket")
-    rocket_name = ""
-    if rocket_id:
-        r_res = requests.get(f"{base_url}/rockets/{rocket_id}")
-        if r_res.status_code == 200:
-            rocket_name = r_res.json().get("name", "")
 
-    # Launchpad
-    launchpad_id = upcoming.get("launchpad")
-    launchpad_name = ""
-    locality = ""
-    if launchpad_id:
-        l_res = requests.get(f"{base_url}/launchpads/{launchpad_id}")
-        if l_res.status_code == 200:
-            lp = l_res.json()
-            launchpad_name = lp.get("name", "")
-            locality = lp.get("locality", "")
-
-    # Format: "<name> (<local_date>) <rocket> - <launchpad> (<locality>)"
-    print(f"{name} ({date_str}) {rocket_name} - {launchpad_name} ({locality})")
+if __name__ == "__main__":
+    print_upcoming_launch()

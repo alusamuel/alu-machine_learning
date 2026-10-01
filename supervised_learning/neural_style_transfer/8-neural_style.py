@@ -218,7 +218,7 @@ class NST:
 
         one, h, w, c = style_output.shape
         if not isinstance(gram_target, (tf.Tensor, tf.Variable)) or \
-           len(gram_target.shape) != 3 or gram_target.shape != (1, c, c):
+           len(gram_target.shape) is not 3 or gram_target.shape != (1, c, c):
             raise TypeError(
                 "gram_target must be a tensor of shape [1, {}, {}]".format(
                     c, c))
@@ -281,9 +281,7 @@ class NST:
             raise TypeError(
                 "generated_image must be a tensor of shape {}".format(shape)
             )
-        preprocessed = tf.keras.applications.vgg19.preprocess_input(
-            generated_image * 255)
-        model_outputs = self.model(preprocessed)
+        model_outputs = self.model(generated_image)
         style_outputs = model_outputs[:-1]
         content_output = model_outputs[-1]
         J_content = self.content_cost(content_output)

@@ -218,7 +218,7 @@ class NST:
 
         one, h, w, c = style_output.shape
         if not isinstance(gram_target, (tf.Tensor, tf.Variable)) or \
-           len(gram_target.shape) != 3 or gram_target.shape != (1, c, c):
+           len(gram_target.shape) is not 3 or gram_target.shape != (1, c, c):
             raise TypeError(
                 "gram_target must be a tensor of shape [1, {}, {}]".format(
                     c, c))
@@ -259,11 +259,9 @@ class NST:
         '''
             Calculates the content cost for generated image
         '''
-        shape = self.content_feature.shape
-        if not isinstance(content_output, (tf.Tensor, tf.Variable)) or \
-           content_output.shape != shape:
-            raise TypeError(
-                "content_output must be a tensor of shape {}".format(shape))
+        if not isinstance(content_output, tf.Tensor) or len(
+                content_output.shape) != 4:
+            raise TypeError("content_output must be a tensor of rank 4")
         content_cost = tf.reduce_mean(
             tf.square(content_output - self.content_feature)
         )

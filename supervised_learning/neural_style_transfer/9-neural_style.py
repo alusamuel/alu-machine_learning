@@ -193,7 +193,7 @@ class NST:
         """
         if not isinstance(input_layer, (tf.Tensor, tf.Variable)):
             raise TypeError("input_layer must be a tensor of rank 4")
-        if len(input_layer.shape) != 4:
+        if len(input_layer.shape) is not 4:
             raise TypeError("input_layer must be a tensor of rank 4")
         _, h, w, c = input_layer.shape
         product = h * w
@@ -240,16 +240,14 @@ class NST:
             the layer's style cost
         """
         if not isinstance(style_output, (tf.Tensor, tf.Variable)) or \
-           len(style_output.shape) != 4:
+           len(style_output.shape) is not 4:
             raise TypeError("style_output must be a tensor of rank 4")
         one, h, w, c = style_output.shape
         if not isinstance(gram_target, (tf.Tensor, tf.Variable)) or \
-           gram_target.shape != (1, c, c):
+           len(gram_target.shape) is not 3:
             raise TypeError(
                 "gram_target must be a tensor of shape [1, {}, {}]".format(
                     c, c))
-        gram_style = self.gram_matrix(style_output)
-        return tf.reduce_mean(tf.square(gram_style - gram_target))
 
     def style_cost(self, style_outputs):
         """
@@ -267,12 +265,6 @@ class NST:
             raise TypeError(
                 "style_outputs must be a list with a length of {}".format(
                     length))
-        weight = 1 / length
-        style_cost = 0.0
-        for output, gram_target in zip(style_outputs,
-                                       self.gram_style_features):
-            style_cost += weight * self.layer_style_cost(output, gram_target)
-        return style_cost
 
     def content_cost(self, content_output):
         """
@@ -290,7 +282,6 @@ class NST:
            content_output.shape != shape:
             raise TypeError(
                 "content_output must be a tensor of shape {}".format(shape))
-        return tf.reduce_mean(tf.square(content_output - self.content_feature))
 
     def total_cost(self, generated_image):
         """
@@ -311,13 +302,6 @@ class NST:
            generated_image.shape != shape:
             raise TypeError(
                 "generated_image must be a tensor of shape {}".format(shape))
-        preprocessed = tf.keras.applications.vgg19.preprocess_input(
-            generated_image * 255)
-        model_outputs = self.model(preprocessed)
-        J_content = self.content_cost(model_outputs[-1])
-        J_style = self.style_cost(model_outputs[:-1])
-        J = self.alpha * J_content + self.beta * J_style
-        return J, J_content, J_style
 
     def compute_grads(self, generated_image):
         """
@@ -329,7 +313,7 @@ class NST:
 
         returns:
             gradients, J_total, J_content, J_style
-                gradients [tf.Tensor]: contains gradients for generated image
+                gradients [tf.Tensor]: contatins gradients for generated image
                 J_total: total cost for the generated image
                 J_content: content cost
                 J_style: style cost
@@ -339,11 +323,6 @@ class NST:
            generated_image.shape != shape:
             raise TypeError(
                 "generated_image must be a tensor of shape {}".format(shape))
-        with tf.GradientTape() as tape:
-            tape.watch(generated_image)
-            J_total, J_content, J_style = self.total_cost(generated_image)
-        gradients = tape.gradient(J_total, generated_image)
-        return gradients, J_total, J_content, J_style
 
     def generate_image(self, iterations=1000, step=None, lr=0.01,
                        beta1=0.9, beta2=0.99):
@@ -364,7 +343,7 @@ class NST:
                 learning rate for gradient descent
             beta1 [float]:
                 beta1 parameter for gradient descent
-            beta2 [float]:
+            beta2 [float[:
                 beta2 parameter for gradient descent
 
         Gradient descent should be performed using Adam optimization.
@@ -378,15 +357,15 @@ class NST:
         """
         if type(iterations) is not int:
             raise TypeError("iterations must be an integer")
-        if iterations <= 0:
+        if iterations < 0:
             raise ValueError("iterations must be positive")
         if step is not None and type(step) is not int:
             raise TypeError("step must be an integer")
-        if step is not None and (step <= 0 or step >= iterations):
+        if step is not None and (step < 0 or step > iterations):
             raise ValueError("step must be positive and less than iterations")
         if type(lr) is not int and type(lr) is not float:
             raise TypeError("lr must be a number")
-        if lr <= 0:
+        if lr < 0:
             raise ValueError("lr must be positive")
         if type(beta1) is not float:
             raise TypeError("beta1 must be a float")
@@ -396,23 +375,6 @@ class NST:
             raise TypeError("beta2 must be a float")
         if beta2 < 0 or beta2 > 1:
             raise ValueError("beta2 must be in the range [0, 1]")
-        generated_image = tf.Variable(self.content_image)
-        optimizer = tf.train.AdamOptimizer(lr, beta1=beta1, beta2=beta2)
-        best_cost = float("inf")
-        best_image = None
-
-        for i in range(iterations + 1):
-            grads = self.compute_grads(generated_image)
-            gradients, J_total, J_content, J_style = grads
-            if step is not None and (i % step == 0 or i == iterations):
-                print("Cost at iteration {}: {}, content {}, style {}".format(
-                    i, J_total.numpy(), J_content.numpy(), J_style.numpy()))
-            if J_total < best_cost:
-                best_cost = J_total
-                best_image = generated_image[0].numpy()
-            if i < iterations:
-                optimizer.apply_gradients([(gradients, generated_image)])
-                generated_image.assign(
-                    tf.clip_by_value(generated_image, 0, 1))
-
-        return best_image, best_cost
+        generated_image = self.content_image
+        cost = 0
+        return generated_image, cost

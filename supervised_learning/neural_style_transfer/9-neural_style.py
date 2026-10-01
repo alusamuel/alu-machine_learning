@@ -378,15 +378,15 @@ class NST:
         """
         if type(iterations) is not int:
             raise TypeError("iterations must be an integer")
-        if iterations < 0:
+        if iterations <= 0:
             raise ValueError("iterations must be positive")
         if step is not None and type(step) is not int:
             raise TypeError("step must be an integer")
-        if step is not None and (step < 0 or step > iterations):
+        if step is not None and (step <= 0 or step >= iterations):
             raise ValueError("step must be positive and less than iterations")
         if type(lr) is not int and type(lr) is not float:
             raise TypeError("lr must be a number")
-        if lr < 0:
+        if lr <= 0:
             raise ValueError("lr must be positive")
         if type(beta1) is not float:
             raise TypeError("beta1 must be a float")
@@ -406,7 +406,7 @@ class NST:
             gradients, J_total, J_content, J_style = grads
             if step is not None and (i % step == 0 or i == iterations):
                 print("Cost at iteration {}: {}, content {}, style {}".format(
-                    i, J_total, J_content, J_style))
+                    i, J_total.numpy(), J_content.numpy(), J_style.numpy()))
             if J_total < best_cost:
                 best_cost = J_total
                 best_image = generated_image[0].numpy()

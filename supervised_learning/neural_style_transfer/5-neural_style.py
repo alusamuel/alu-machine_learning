@@ -245,12 +245,11 @@ class NST:
                 )
             )
 
-        weight = 1 / length
         style_cost = 0.0
 
         for i in range(length):
-            style_cost += weight * self.layer_style_cost(
+            style_cost += self.layer_style_cost(
                 style_outputs[i], self.gram_style_features[i]
             )
 
-        return style_cost
+        return style_cost / length

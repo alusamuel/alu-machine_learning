@@ -13,7 +13,7 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     if kmax is None:
         kmax = n
     if (type(kmin) is not int or type(kmax) is not int
-            or not 0 < kmin <= kmax <= n
+            or not 0 < kmin < kmax <= n
             or type(iterations) is not int or iterations <= 0
             or type(tol) is not float or not np.isfinite(tol) or tol < 0
             or type(verbose) is not bool):

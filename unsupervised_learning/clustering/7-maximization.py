@@ -11,10 +11,10 @@ def maximization(X, g):
     n, d = X.shape
     if (not isinstance(g, np.ndarray) or g.ndim != 2
             or g.shape[1] != n or g.shape[0] == 0
-            or np.any(g < 0) or not np.allclose(g.sum(axis=0), 1)):
+            or not np.allclose(g.sum(axis=0), 1)):
         return None, None, None
     mass = g.sum(axis=1)
-    if np.any(mass <= 0):
+    if np.any(mass == 0):
         return None, None, None
     pi = mass / n
     m = g @ X / mass[:, None]

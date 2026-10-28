@@ -17,7 +17,7 @@ def pdf(X, m, S):
         np.linalg.cholesky(S)
         sign, logdet = np.linalg.slogdet(S)
         diff = X - m
-        quadratic = np.sum(diff * np.linalg.solve(S, diff.T).T, axis=1)
+        quadratic = np.sum((diff @ np.linalg.inv(S)) * diff, axis=1)
     except np.linalg.LinAlgError:
         return None
     log_p = -0.5 * (d * np.log(2 * np.pi) + logdet + quadratic)
